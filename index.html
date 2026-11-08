@@ -114,7 +114,7 @@ textarea{min-height:76px;resize:vertical}
   <div class="modal" style="max-width:380px">
     <h2>Masuk ke tracker</h2>
     <form id="auth-form">
-      <div class="f"><label>Email</label><input id="a-email" type="email" autocomplete="email" required></div>
+      <div class="f"><label>Username</label><input id="a-email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="contoh: memorablepoto" required></div>
       <div class="f"><label>Password</label><input id="a-pass" type="password" autocomplete="current-password" minlength="6" required></div>
       <div class="mf"><button type="button" class="btn ghost" id="a-up">Daftar</button><button class="btn" type="submit">Masuk</button></div>
     </form>
@@ -271,7 +271,7 @@ async function initStore(){
   sb.auth.onAuthStateChange((_e,session)=>{
     if(session){
       $('ov3').classList.remove('open');
-      $('who').textContent=session.user.email;$('logout').style.display='';
+      $('who').textContent=(session.user.email||'').replace('@endora-app.com','');$('logout').style.display='';
       $('sync').textContent='memuat…';load();
     }else{
       items=[];render();$('who').textContent='';$('logout').style.display='none';
@@ -280,12 +280,14 @@ async function initStore(){
   });
 }
 async function doAuth(mode){
-  const email=$('a-email').value.trim(),password=$('a-pass').value;
-  if(!email||password.length<6){authMsg('Isi email dan password (minimal 6 karakter).');return}
+  const uname=$('a-email').value.trim().toLowerCase(),password=$('a-pass').value;
+  if(!/^[a-z0-9_.-]{3,30}$/.test(uname)){authMsg('Username 3-30 karakter: huruf, angka, titik, strip, atau underscore (tanpa spasi).');return}
+  if(password.length<6){authMsg('Password minimal 6 karakter.');return}
+  const email=uname+'@endora-app.com';
   authMsg('Memproses…',true);
   const res=mode==='up'?await sb.auth.signUp({email,password}):await sb.auth.signInWithPassword({email,password});
-  if(res.error){authMsg(res.error.message);return}
-  if(mode==='up'&&!res.data.session)authMsg('Akun dibuat. Cek email untuk konfirmasi, lalu masuk.',true);
+  if(res.error){const m=res.error.message||'';authMsg(/already registered/i.test(m)?'Username sudah dipakai.':/invalid login/i.test(m)?'Username atau password salah.':m);return}
+  if(mode==='up'&&!res.data.session)authMsg('Akun dibuat, tapi Supabase masih meminta konfirmasi email. Matikan "Confirm email" di dashboard Supabase.');
 }
 $('auth-form').onsubmit=e=>{e.preventDefault();doAuth('in')};
 $('a-up').onclick=()=>doAuth('up');
