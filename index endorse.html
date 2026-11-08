@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Endorsement Tracker by memorablepoto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f5f2;--surface:#fff;--ink:#1d1b19;--muted:#7a746c;--line:#e7e3dc;--accent:#1d1b19;
+  --s-todo:#b45309;--s-todo-bg:#fef3c7;
+  --s-qc:#1d4ed8;--s-qc-bg:#dbeafe;
+  --s-posted:#6d28d9;--s-posted-bg:#ede9fe;
+  --s-paid:#047857;--s-paid-bg:#d1fae5;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#161513;--surface:#1f1d1b;--ink:#f1eee9;--muted:#9b948a;--line:#33302c;--accent:#f1eee9;
+  --s-todo:#fcd34d;--s-todo-bg:#3a2a08;--s-qc:#93c5fd;--s-qc-bg:#13264d;--s-posted:#c4b5fd;--s-posted-bg:#2a1b52;--s-paid:#6ee7b7;--s-paid-bg:#0b3326}
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:24px 16px 80px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:var(--bg);border:0;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:#b91c1c;color:#fff}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:19px;font-weight:800;margin-top:2px}
+.stat span{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.bar input{flex:1;min-width:160px}
+input,select,textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:6px 12px;font-size:12.5px;font-weight:600}
+.chip.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:8px 14px}
+.card h3{font-size:16px;font-weight:700}
+.price{font-weight:800;font-size:16px;text-align:right}
+.meta{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+.txt{grid-column:1/-1;font-size:13px;line-height:1.5;white-space:pre-wrap}
+.txt small{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+.foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+.st{border:0;border-radius:99px;padding:6px 26px 6px 12px;font-size:12.5px;font-weight:700;width:auto;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='currentColor' fill='none' stroke-width='1.6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.st.todo{background-color:var(--s-todo-bg);color:var(--s-todo)}
+.st.qc{background-color:var(--s-qc-bg);color:var(--s-qc)}
+.st.posted{background-color:var(--s-posted-bg);color:var(--s-posted)}
+.st.paid{background-color:var(--s-paid-bg);color:var(--s-paid)}
+.acts{display:flex;gap:6px}
+.acts button{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:48px 12px;border:1px dashed var(--line);border-radius:14px;font-size:14px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-start;justify-content:center;padding:20px 12px;overflow:auto;z-index:10}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;padding:22px;width:100%;max-width:480px;margin:auto}
+.modal h2{font-size:19px;font-weight:800;margin-bottom:14px}
+.f{margin-bottom:12px}
+.f label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+textarea{min-height:76px;resize:vertical}
+.mf{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+#sync{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Endorsement Tracker <span style="font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0">by memorablepoto</span></h1>
+      <div class="sub">Pantau job endorsement dari masuk sampai dibayar · <span id="sync"></span></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="who" class="sub"></span><button class="btn ghost" id="logout" style="display:none">Keluar</button><button class="btn" id="add">+ Endorse baru</button></div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="bar"><input id="q" type="search" placeholder="Cari nama, SOW, atau notes…"></div>
+  <div class="chips" id="chips"></div>
+  <div class="list" id="list"></div>
+</div>
+
+<div class="overlay" id="ov">
+  <form class="modal" id="form">
+    <h2 id="mt">Endorse baru</h2>
+    <div class="f"><label>Nama (brand / klien)</label><input id="f-name" required></div>
+    <div class="f"><label>Harga (Rp)</label><input id="f-price" type="number" min="0" step="1000" inputmode="numeric" placeholder="0"></div>
+    <div class="row">
+      <div class="f"><label>Deadline</label><input id="f-deadline" type="date"></div>
+      <div class="f"><label>Tanggal upload</label><input id="f-date" type="date"></div>
+    </div>
+    <div class="f"><label>SOW (scope of work)</label><textarea id="f-sow" placeholder="Contoh: 1 IG Reels + 3 story, link in bio 7 hari"></textarea></div>
+    <div class="f"><label>Status</label><select id="f-status"></select></div>
+    <div class="f"><label>Notes</label><textarea id="f-notes" placeholder="Brief, revisi, kontak PIC, terms pembayaran…"></textarea></div>
+    <div class="mf"><button type="button" class="btn ghost" id="cancel">Batal</button><button class="btn" type="submit">Simpan</button></div>
+  </form>
+</div>
+
+<div class="overlay" id="ov2">
+  <div class="modal" style="max-width:360px">
+    <h2>Hapus endorsement?</h2>
+    <p id="delmsg" style="font-size:14px;color:var(--muted);margin-bottom:14px"></p>
+    <div class="mf"><button class="btn ghost" id="delno">Batal</button><button class="btn danger" id="delyes">Hapus</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov3">
+  <div class="modal" style="max-width:380px">
+    <h2>Masuk ke tracker</h2>
+    <form id="auth-form">
+      <div class="f"><label>Email</label><input id="a-email" type="email" autocomplete="email" required></div>
+      <div class="f"><label>Password</label><input id="a-pass" type="password" autocomplete="current-password" minlength="6" required></div>
+      <div class="mf"><button type="button" class="btn ghost" id="a-up">Daftar</button><button class="btn" type="submit">Masuk</button></div>
+    </form>
+    <p id="auth-msg" style="font-size:13px;margin-top:12px"></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const STATUSES=[
+  {k:'todo',label:'Belum bikin video'},
+  {k:'qc',label:'QC'},
+  {k:'posted',label:'Posted'},
+  {k:'paid',label:'Paid'}
+];
+const sLabel=k=>(STATUSES.find(s=>s.k===k)||STATUSES[0]).label;
+const rp=n=>'Rp '+(Number(n)||0).toLocaleString('id-ID');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate=d=>{if(!d)return'—';const [y,m,dd]=d.split('-');return new Date(+y,+m-1,+dd).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})};
+const $=id=>document.getElementById(id);
+
+let items=[],filter='all',editingId=null,delId=null,col=null;
+const LS='endorse-tracker-v1';
+
+/* ---------- render ---------- */
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const late=i=>!!i.deadline&&(i.status==='todo'||i.status==='qc')&&i.deadline<todayStr();
+function render(){
+  const q=$('q').value.trim().toLowerCase();
+  const counts={all:items.length};STATUSES.forEach(s=>counts[s.k]=items.filter(i=>i.status===s.k).length);
+
+  const total=items.reduce((a,i)=>a+(+i.price||0),0);
+  const unpaid=items.filter(i=>i.status!=='paid').reduce((a,i)=>a+(+i.price||0),0);
+  $('stats').innerHTML=
+    `<div class="stat"><span>Total endorse</span><b>${items.length}</b></div>`+
+    `<div class="stat"><span>Total nilai</span><b>${rp(total)}</b></div>`+
+    `<div class="stat"><span>Belum dibayar</span><b>${rp(unpaid)}</b></div>`+
+    `<div class="stat"><span>Perlu dikerjakan</span><b>${counts.todo+counts.qc}</b></div>`;
+
+  $('chips').innerHTML=[{k:'all',label:'Semua'},...STATUSES].map(s=>
+    `<button class="chip ${filter===s.k?'on':''}" data-f="${s.k}">${s.label} (${counts[s.k]})</button>`).join('');
+
+  let list=items.filter(i=>(filter==='all'||i.status===filter)&&
+    (!q||[i.name,i.sow,i.notes].some(v=>(v||'').toLowerCase().includes(q))));
+  list.sort((a,b)=>(a.deadline||a.date||'9999').localeCompare(b.deadline||b.date||'9999'));
+
+  $('list').innerHTML=list.length?list.map(i=>`
+    <div class="card">
+      <h3>${esc(i.name)}</h3><div class="price">${rp(i.price)}</div>
+      <div class="meta">
+        <span>Deadline: <b${late(i)?' style="color:#b91c1c"':''}>${fmtDate(i.deadline)}</b>${late(i)?' · telat':''}</span>
+        <span>Upload: <b>${fmtDate(i.date)}</b></span>
+      </div>
+      ${i.sow?`<div class="txt"><small>SOW</small>${esc(i.sow)}</div>`:''}
+      ${i.notes?`<div class="txt"><small>Notes</small>${esc(i.notes)}</div>`:''}
+      <div class="foot">
+        <select class="st ${i.status}" data-id="${i.id}" aria-label="Status">
+          ${STATUSES.map(s=>`<option value="${s.k}" ${s.k===i.status?'selected':''}>${s.label}</option>`).join('')}
+        </select>
+        <div class="acts"><button data-edit="${i.id}">Edit</button><button data-del="${i.id}">Hapus</button></div>
+      </div>
+    </div>`).join(''):
+    `<div class="empty">${items.length?'Tidak ada yang cocok.':'Belum ada endorsement. Klik “+ Endorse baru” untuk mulai.'}</div>`;
+}
+
+/* ---------- modal ---------- */
+$('f-status').innerHTML=STATUSES.map(s=>`<option value="${s.k}">${s.label}</option>`).join('');
+function openForm(it){
+  editingId=it?it.id:null;
+  $('mt').textContent=it?'Edit endorsement':'Endorse baru';
+  $('f-name').value=it?.name||'';
+  $('f-price').value=it?.price??'';
+  $('f-date').value=it?.date||'';
+  $('f-deadline').value=it?.deadline||'';
+  $('f-sow').value=it?.sow||'';
+  $('f-status').value=it?.status||'todo';
+  $('f-notes').value=it?.notes||'';
+  $('ov').classList.add('open');
+  setTimeout(()=>$('f-name').focus(),50);
+}
+const closeForm=()=>$('ov').classList.remove('open');
+
+$('add').onclick=()=>openForm(null);
+$('cancel').onclick=closeForm;
+$('ov').addEventListener('mousedown',e=>{if(e.target===$('ov'))closeForm()});
+$('form').onsubmit=e=>{
+  e.preventDefault();
+  const it={
+    id:editingId||('e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+    name:$('f-name').value.trim(),
+    price:Number($('f-price').value)||0,
+    date:$('f-date').value,
+    deadline:$('f-deadline').value,
+    sow:$('f-sow').value.trim(),
+    status:$('f-status').value,
+    notes:$('f-notes').value.trim()
+  };
+  if(!it.name)return;
+  saveItem(it);closeForm();
+};
+
+/* ---------- list interactions ---------- */
+$('list').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]'),dl=e.target.closest('[data-del]');
+  if(ed)openForm(items.find(i=>i.id===ed.dataset.edit));
+  if(dl){delId=dl.dataset.del;const it=items.find(i=>i.id===delId);
+    $('delmsg').textContent=`“${it?.name||''}” akan dihapus permanen.`;$('ov2').classList.add('open')}
+});
+$('list').addEventListener('change',e=>{
+  const s=e.target.closest('select[data-id]');if(!s)return;
+  const it=items.find(i=>i.id===s.dataset.id);if(it)saveItem({...it,status:s.value});
+});
+$('chips').addEventListener('click',e=>{const c=e.target.closest('[data-f]');if(c){filter=c.dataset.f;render()}});
+$('q').addEventListener('input',render);
+$('delno').onclick=()=>$('ov2').classList.remove('open');
+$('delyes').onclick=()=>{if(delId)removeItem(delId);delId=null;$('ov2').classList.remove('open')};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeForm();$('ov2').classList.remove('open')}});
+
+/* ---------- storage: Supabase ---------- */
+const SUPABASE_URL='GANTI_DENGAN_PROJECT_URL';
+const SUPABASE_ANON_KEY='GANTI_DENGAN_ANON_KEY';
+let sb=null;
+const toRow=it=>({name:it.name,price:it.price,deadline:it.deadline||null,upload_date:it.date||null,sow:it.sow,status:it.status,notes:it.notes});
+const fromRow=r=>({id:r.id,name:r.name,price:Number(r.price)||0,deadline:r.deadline||'',date:r.upload_date||'',sow:r.sow||'',status:r.status,notes:r.notes||''});
+
+async function load(){
+  const {data,error}=await sb.from('endorsements').select('*');
+  if(error){$('sync').textContent='gagal memuat: '+error.message;return}
+  items=data.map(fromRow);
+  $('sync').textContent='tersimpan di akunmu';
+  render();
+}
+async function saveItem(it){
+  const row=toRow(it);
+  const isNew=!items.some(x=>x.id===it.id);
+  const {error}=isNew?await sb.from('endorsements').insert(row):await sb.from('endorsements').update(row).eq('id',it.id);
+  if(error){$('sync').textContent='gagal menyimpan: '+error.message;return}
+  await load();
+}
+async function removeItem(id){
+  const {error}=await sb.from('endorsements').delete().eq('id',id);
+  if(error){$('sync').textContent='gagal menghapus: '+error.message;return}
+  await load();
+}
+
+/* ---------- auth ---------- */
+function authMsg(t,ok){const m=$('auth-msg');m.textContent=t||'';m.style.color=ok?'var(--s-paid)':'#b91c1c'}
+async function initStore(){
+  if(SUPABASE_URL.startsWith('GANTI')||SUPABASE_ANON_KEY.startsWith('GANTI')){
+    $('ov3').classList.add('open');$('auth-form').style.display='none';
+    authMsg('Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY di bagian atas script.');return;
+  }
+  sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((_e,session)=>{
+    if(session){
+      $('ov3').classList.remove('open');
+      $('who').textContent=session.user.email;$('logout').style.display='';
+      $('sync').textContent='memuat…';load();
+    }else{
+      items=[];render();$('who').textContent='';$('logout').style.display='none';
+      $('sync').textContent='';$('ov3').classList.add('open');
+    }
+  });
+}
+async function doAuth(mode){
+  const email=$('a-email').value.trim(),password=$('a-pass').value;
+  if(!email||password.length<6){authMsg('Isi email dan password (minimal 6 karakter).');return}
+  authMsg('Memproses…',true);
+  const res=mode==='up'?await sb.auth.signUp({email,password}):await sb.auth.signInWithPassword({email,password});
+  if(res.error){authMsg(res.error.message);return}
+  if(mode==='up'&&!res.data.session)authMsg('Akun dibuat. Cek email untuk konfirmasi, lalu masuk.',true);
+}
+$('auth-form').onsubmit=e=>{e.preventDefault();doAuth('in')};
+$('a-up').onclick=()=>doAuth('up');
+$('logout').onclick=()=>sb&&sb.auth.signOut();
+
+render();
+initStore();
+</script>
+</body>
+</html>
