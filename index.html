@@ -234,8 +234,8 @@ $('delyes').onclick=()=>{if(delId)removeItem(delId);delId=null;$('ov2').classLis
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeForm();$('ov2').classList.remove('open')}});
 
 /* ---------- storage: Supabase ---------- */
-const SUPABASE_URL='GANTI_DENGAN_PROJECT_URL';
-const SUPABASE_ANON_KEY='GANTI_DENGAN_ANON_KEY';
+const SUPABASE_URL='https://jynvlgdveuqstbamlrme.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_N-37eyXxMDIGDzSbACTo4g_Qqn7s6NR';
 let sb=null;
 const toRow=it=>({name:it.name,price:it.price,deadline:it.deadline||null,upload_date:it.date||null,sow:it.sow,status:it.status,notes:it.notes});
 const fromRow=r=>({id:r.id,name:r.name,price:Number(r.price)||0,deadline:r.deadline||'',date:r.upload_date||'',sow:r.sow||'',status:r.status,notes:r.notes||''});
